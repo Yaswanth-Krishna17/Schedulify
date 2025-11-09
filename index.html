@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>University Timetable Maker</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <style>
+      :root {
+        --primary: #2563eb;
+        --secondary: #10b981;
+        --accent: #8b5cf6;
+        --warning: #f59e0b;
+        --danger: #ef4444;
+        --surface: #ffffff;
+        --background: #f8fafc;
+        --text-primary: #1e293b;
+        --text-secondary: #64748b;
+      }
+
+      * {
+        scroll-behavior: smooth;
+      }
+
+      body {
+        font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, sans-serif;
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 75%, #00f2fe 100%);
+        background-size: 400% 400%;
+        animation: gradientShift 15s ease infinite;
+        min-height: 100vh;
+      }
+
+      @keyframes gradientShift {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+
+      .fade-in {
+        animation: fadeIn 0.6s ease-out;
+      }
+
+      @keyframes fadeIn {
+        from { opacity: 0; transform: translateY(20px); }
+        to { opacity: 1; transform: translateY(0); }
+      }
+
+      .slide-in {
+        animation: slideIn 0.5s ease-out;
+      }
+
+      @keyframes slideIn {
+        from { opacity: 0; transform: translateX(-30px); }
+        to { opacity: 1; transform: translateX(0); }
+      }
+
+      .glass {
+        background: rgba(255, 255, 255, 0.95);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(255, 255, 255, 0.3);
+        box-shadow: 0 8px 32px 0 rgba(31, 38, 135, 0.15);
+      }
+
+      *:focus {
+        outline: 3px solid #3b82f6;
+        outline-offset: 3px;
+      }
+
+      *:focus:not(:focus-visible) {
+        outline: none;
+      }
+
+      *:focus-visible {
+        outline: 3px solid #3b82f6;
+        outline-offset: 3px;
+        border-radius: 4px;
+      }
+
+      .btn {
+        position: relative;
+        overflow: hidden;
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+        font-weight: 600;
+        letter-spacing: 0.025em;
+        min-height: 44px;
+        min-width: 44px;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        gap: 0.5rem;
+      }
+
+      .btn::before {
+        content: '';
+        position: absolute;
+        top: 50%;
+        left: 50%;
+        width: 0;
+        height: 0;
+        border-radius: 50%;
+        background: rgba(255, 255, 255, 0.3);
+        transform: translate(-50%, -50%);
+        transition: width 0.6s, height 0.6s;
+      }
+
+      .btn:hover::before {
+        width: 300px;
+        height: 300px;
+      }
+
+      .btn:active {
+        transform: scale(0.97);
+      }
+
+      input, select {
+        transition: all 0.3s ease;
+        border-width: 2px;
+        min-height: 44px;
+      }
+
+      input:hover, select:hover {
+        border-color: #3b82f6;
+        box-shadow: 0 4px 12px rgba(59, 130, 246, 0.1);
+      }
+
+      input:focus, select:focus {
+        border-color: #2563eb;
+        box-shadow: 0 0 0 4px rgba(37, 99, 235, 0.1);
+        transform: translateY(-2px);
+      }
+
+      .header-title {
+        background: linear-gradient(135deg, #667eea 0%, #764ba2 25%, #f093fb 50%, #4facfe 100%);
+        -webkit-background-clip: text;
+        background-clip: text;
+        -webkit-text-fill-color: transparent;
+        animation: shimmer 3s infinite;
+        background-size: 200% 200%;
+      }
+
+      @keyframes shimmer {
+        0% { background-position: 0% 50%; }
+        50% { background-position: 100% 50%; }
+        100% { background-position: 0% 50%; }
+      }
+
+      .card {
+        transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+      }
+
+      .card:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 20px 40px rgba(0, 0, 0, 0.1);
+      }
+
+      table {
+        border-collapse: separate;
+        border-spacing: 0;
+      }
+
+      table th {
+        position: sticky;
+        top: 0;
+        z-index: 10;
+        background: white;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-size: 0.875rem;
+      }
+
+      table td {
+        transition: all 0.2s ease;
+      }
+
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        padding: 0;
+        margin: -1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border-width: 0;
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        *, *::before, *::after {
+          animation-duration: 0.01ms !important;
+          animation-iteration-count: 1 !important;
+          transition-duration: 0.01ms !important;
+        }
+      }
+    </style>
+  </head>
+  <body>
+    <a href="#main-content" class="sr-only">Skip to main content</a>
+    
+    <a id="top-anchor"></a>
+    
+    <!-- Header -->
+    <header class="sticky top-0 z-30 glass shadow-xl py-6 mb-8 fade-in" role="banner">
+      <div class="max-w-6xl mx-auto flex flex-col md:flex-row justify-between items-center px-4 gap-4">
+        <div class="flex items-center gap-4">
+          <div class="w-12 h-12 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
+            <svg class="w-7 h-7 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2.5" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+            </svg>
+          </div>
+          <h1 class="text-3xl md:text-4xl font-extrabold header-title">
+            University Timetable Maker
+          </h1>
+        </div>
+      </div>
+    </header>
+
+    <!-- Main Content -->
+    <main id="main-content" class="max-w-6xl mx-auto px-4 pb-12" role="main">
+      <!-- Welcome Card -->
+      <div class="glass rounded-3xl shadow-2xl p-8 mb-8 fade-in card">
+        <div class="text-center mb-8">
+          <h2 class="text-3xl md:text-4xl font-bold text-gray-800 mb-4">
+            Welcome to Your Schedule Builder
+          </h2>
+          <p class="text-lg text-gray-600 max-w-3xl mx-auto leading-relaxed">
+            Choose your subjects and let our intelligent system organize your perfect clash-free schedule.
+          </p>
+        </div>
+
+        <!-- Subject Selection Form -->
+        <form id="initial-form" class="mb-8 space-y-4">
+          <div class="flex flex-col md:flex-row gap-4 items-end justify-center">
+            <div class="flex flex-col">
+              <label for="num-subjects" class="mb-2 font-semibold text-gray-700">Number of Subjects</label>
+              <input 
+                type="number" 
+                id="num-subjects" 
+                min="1" 
+                max="15" 
+                placeholder="Enter number" 
+                class="p-4 border-2 border-blue-300 rounded-xl w-64 text-lg font-semibold focus:ring-4 focus:ring-blue-400 focus:border-blue-500 glass" 
+                required 
+                aria-label="Enter number of subjects (1-15)"
+              />
+            </div>
+            
+            <button 
+              type="submit" 
+              class="btn bg-gradient-to-r from-green-500 via-blue-600 to-purple-600 text-white px-8 py-4 rounded-xl shadow-lg font-bold text-lg hover:shadow-2xl transform hover:scale-105"
+              aria-label="Generate subject selection fields"
+            >
+              <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+              </svg>
+              Continue
+            </button>
+          </div>
+        </form>
+
+        <!-- Info Cards -->
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-6 mt-8">
+          <div class="bg-blue-50 border-2 border-blue-200 rounded-xl p-6 text-center card">
+            <div class="w-16 h-16 bg-blue-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+              <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-blue-800 mb-2">Fast & Efficient</h3>
+            <p class="text-blue-700">Generate your timetable in seconds with our advanced algorithm</p>
+          </div>
+          
+          <div class="bg-green-50 border-2 border-green-200 rounded-xl p-6 text-center card">
+            <div class="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+              <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-green-800 mb-2">Clash-Free</h3>
+            <p class="text-green-700">Automatic conflict detection ensures no overlapping classes</p>
+          </div>
+          
+          <div class="bg-purple-50 border-2 border-purple-200 rounded-xl p-6 text-center card">
+            <div class="w-16 h-16 bg-purple-500 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+              <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 18h.01M8 21h8a2 2 0 002-2V5a2 2 0 00-2-2H8a2 2 0 00-2 2v14a2 2 0 002 2z" />
+              </svg>
+            </div>
+            <h3 class="text-xl font-bold text-purple-800 mb-2">Mobile Friendly</h3>
+            <p class="text-purple-700">Access your schedule anywhere, on any device</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Subject Selection Section -->
+      <div id="subject-selection-section" class="glass rounded-3xl shadow-2xl p-8 mb-8 slide-in hidden">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center gap-3">
+            <div class="w-10 h-10 bg-gradient-to-br from-purple-500 to-blue-500 rounded-lg flex items-center justify-center">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.747 0 3.332.477 4.5 1.253v13C19.832 18.477 18.247 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+              </svg>
+            </div>
+            Select Your Subjects
+          </h2>
+        </div>
+        <form id="subjects-form" class="space-y-6">
+          <!-- Subject selections will be generated here -->
+        </form>
+      </div>
+
+      <!-- Timetable Display Section -->
+      <div id="timetable-section" class="glass rounded-3xl shadow-2xl p-8 mb-8 fade-in hidden">
+        <div class="flex items-center justify-between mb-6">
+          <h2 class="text-2xl md:text-3xl font-bold text-gray-800 flex items-center gap-3">
+            <div class="w-10 h-10 bg-gradient-to-br from-green-500 to-blue-500 rounded-lg flex items-center justify-center">
+              <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
+              </svg>
+            </div>
+            Your Schedule
+          </h2>
+        </div>
+        <div class="w-full overflow-x-auto">
+          <div id="timetable" class="transition-all duration-700 min-w-[700px]">
+            <p class="text-center text-gray-400 py-12 text-lg">Your timetable will appear here once you generate it.</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Action Buttons -->
+      <div class="flex flex-col sm:flex-row justify-center gap-4 mt-8">
+        <button 
+          id="reset-btn" 
+          class="btn bg-gradient-to-r from-red-500 via-pink-500 to-orange-500 text-white px-10 py-4 rounded-xl shadow-lg font-bold text-lg hover:shadow-2xl transform hover:scale-105"
+          aria-label="Reset all form data and clear timetable"
+        >
+          <svg class="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
+          </svg>
+          Reset Everything
+        </button>
+      </div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="w-full text-center py-8 mt-12 glass mx-auto max-w-6xl rounded-t-3xl">
+      <div class="mb-4">
+        <p class="text-gray-700 text-base font-semibold tracking-wide">
+          Designed with 
+          <span class="text-red-500 inline-block animate-pulse">❤</span> 
+          by 
+          <span class="text-transparent bg-clip-text bg-gradient-to-r from-blue-600 to-purple-600 font-bold">Yaswanth Krishna</span>
+        </p>
+      </div>
+      <div class="text-sm text-gray-500">
+        <p>© 2024 University Timetable Maker. All rights reserved.</p>
+        <p class="mt-2">Accessible • Intuitive • Efficient</p>
+      </div>
+    </footer>
+
+    <script src="main.js"></script>
+  </body>
+</html>
