@@ -867,6 +867,14 @@ window.handleSlotPreference = function(index, preference) {
   if (preference === 'manual') {
     manualSlotsDiv.classList.remove('hidden');
     selectedSubjects[index].preference = 'manual';
+    // Initialize with empty arrays - user must select slots manually
+    selectedSubjects[index].selectedTheorySlots = [];
+    selectedSubjects[index].selectedLabSlots = [];
+    // Uncheck all checkboxes
+    const theoryCheckboxes = document.querySelectorAll(`.theory-slot-${index}`);
+    const labCheckboxes = document.querySelectorAll(`.lab-slot-${index}`);
+    theoryCheckboxes.forEach(cb => cb.checked = false);
+    labCheckboxes.forEach(cb => cb.checked = false);
   } else {
     manualSlotsDiv.classList.add('hidden');
     selectedSubjects[index].preference = 'auto';
@@ -888,7 +896,7 @@ function populateManualSlots(index, theorySlots, labSlots) {
     theoryHtml = '<p class="font-semibold text-blue-700 mb-2">Theory Slots:</p><div class="grid grid-cols-2 md:grid-cols-3 gap-2">';
     theorySlots.forEach(slot => {
       theoryHtml += `<label class="flex items-center p-2 bg-blue-50 rounded border cursor-pointer hover:bg-blue-100">
-        <input type="checkbox" value="${slot}" class="mr-2 theory-slot-${index}" checked onchange="window.updateSelectedSlots(${index})">
+        <input type="checkbox" value="${slot}" class="mr-2 theory-slot-${index}" onchange="window.updateSelectedSlots(${index})">
         <span class="text-sm">${slot}</span>
       </label>`;
     });
@@ -899,7 +907,7 @@ function populateManualSlots(index, theorySlots, labSlots) {
     labHtml = '<p class="font-semibold text-green-700 mb-2 mt-4">Lab Slots:</p><div class="grid grid-cols-2 md:grid-cols-3 gap-2">';
     labSlots.forEach(slot => {
       labHtml += `<label class="flex items-center p-2 bg-green-50 rounded border cursor-pointer hover:bg-green-100">
-        <input type="checkbox" value="${slot}" class="mr-2 lab-slot-${index}" checked onchange="window.updateSelectedSlots(${index})">
+        <input type="checkbox" value="${slot}" class="mr-2 lab-slot-${index}" onchange="window.updateSelectedSlots(${index})">
         <span class="text-sm">${slot}</span>
       </label>`;
     });
@@ -1134,76 +1142,56 @@ function renderTimetable(assignments) {
     });
   });
   
-  // Render table with enhanced header showing timings prominently in a row
-  let html = '<div class="overflow-x-auto mb-6 shadow-2xl rounded-xl bg-white">';
-  html += '<table class="min-w-full border-2 border-gray-300 text-center bg-white rounded-xl">';
+  // Render compact table that fits on single page
+  let html = '<div class="w-full mb-6 shadow-2xl rounded-xl bg-white">';
+  html += '<table class="w-full border border-gray-300 text-center bg-white" style="table-layout: fixed; width: 100%; font-size: 0.75rem;">';
   html += '<thead class="sticky top-0 z-20">';
   
-  // Section header row - Morning and Afternoon
-  html += '<tr class="bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 text-white shadow-xl">';
-  html += '<th class="border-2 border-gray-600 px-6 py-4 font-black text-xl bg-gradient-to-br from-gray-900 to-gray-800 rounded-tl-xl shadow-inner min-w-[120px]">';
-  html += '<div class="flex flex-col items-center justify-center gap-1">';
-  html += '<div class="text-2xl">📅</div>';
-  html += '<div class="text-base tracking-wide">DAY</div>';
-  html += '</div>';
+  // Section header row - Morning and Afternoon (compact)
+  html += '<tr class="bg-gradient-to-r from-gray-800 via-gray-700 to-gray-800 text-white">';
+  html += '<th class="border border-gray-600 px-3 py-2 font-bold text-sm bg-gradient-to-br from-gray-900 to-gray-800" style="width: 80px;">';
+  html += '<div class="text-xs">📅 DAY</div>';
   html += '</th>';
   
   // Morning section header
-  html += `<th colspan="${morningTimes.length}" class="border-2 border-gray-600 px-6 py-4 font-black text-2xl bg-gradient-to-r from-blue-600 via-blue-700 to-blue-600 shadow-inner">
-    <div class="flex items-center justify-center gap-3">
-      <span class="text-3xl">🌅</span>
-      <span>MORNING (8:00 AM - 1:30 PM)</span>
+  html += `<th colspan="${morningTimes.length}" class="border border-gray-600 px-2 py-2 font-bold text-sm bg-gradient-to-r from-blue-600 via-blue-700 to-blue-600">
+    <div class="flex items-center justify-center gap-2">
+      <span>🌅</span>
+      <span class="text-xs">MORNING</span>
     </div>
   </th>`;
   
-  // Afternoon section header
-  html += `<th colspan="${afternoonTimes.length}" class="border-2 border-gray-600 px-6 py-4 font-black text-2xl bg-gradient-to-r from-orange-600 via-orange-700 to-orange-600 shadow-inner">
-    <div class="flex items-center justify-center gap-3">
-      <span class="text-3xl">🌆</span>
-      <span>AFTERNOON (2:00 PM - 7:30 PM)</span>
+  // Afternoon section header (including 6:00-7:30 slots)
+  html += `<th colspan="${afternoonTimes.length}" class="border border-gray-600 px-2 py-2 font-bold text-sm bg-gradient-to-r from-orange-600 via-orange-700 to-orange-600">
+    <div class="flex items-center justify-center gap-2">
+      <span>🌆</span>
+      <span class="text-xs">AFTERNOON</span>
     </div>
   </th>`;
   
   html += '</tr>';
   
-  // Header row with timings - prominently displayed
-  html += '<tr class="bg-gradient-to-r from-blue-700 via-purple-700 to-blue-700 text-white shadow-2xl">';
-  html += '<th class="border-2 border-blue-800 px-6 py-5 font-black text-2xl bg-gradient-to-br from-blue-800 to-purple-800 shadow-inner min-w-[120px]">';
-  html += '<div class="flex flex-col items-center justify-center gap-2">';
-  html += '<div class="text-3xl">📅</div>';
-  html += '<div class="text-lg tracking-wide">DAY</div>';
-  html += '</div>';
+  // Header row with timings - compact
+  html += '<tr class="bg-gradient-to-r from-blue-700 via-purple-700 to-blue-700 text-white">';
+  html += '<th class="border border-blue-800 px-3 py-3 font-bold text-sm bg-gradient-to-br from-blue-800 to-purple-800" style="width: 80px;">';
+  html += '<div class="text-sm">DAY</div>';
   html += '</th>';
   
-  // Morning time slots
+  // Morning time slots - compact
   morningTimes.forEach((time) => {
     const bgClass = 'bg-gradient-to-b from-blue-600 to-blue-700';
-    const timeLabel = '🌅 AM';
-    
-    html += `<th class="border-2 border-blue-800 px-5 py-5 font-black whitespace-nowrap ${bgClass} hover:scale-105 hover:shadow-xl transition-all duration-200 cursor-default shadow-inner min-w-[110px]" title="Time Slot: ${time}">
-      <div class="flex flex-col items-center justify-center gap-1">
-        <div class="text-2xl font-black leading-none tracking-tight drop-shadow-lg">${time}</div>
-        <div class="text-xs font-semibold opacity-90 mt-1 px-2 py-1 bg-white bg-opacity-20 rounded-full backdrop-blur-sm">
-          ${timeLabel}
-        </div>
-      </div>
+    html += `<th class="border border-blue-800 px-2 py-3 font-bold text-sm whitespace-nowrap ${bgClass}" title="Time Slot: ${time}">
+      <div class="text-sm leading-tight">${time}</div>
     </th>`;
   });
   
-  // Afternoon time slots
+  // Afternoon time slots - compact (including 6:00-6:50 and 6:50-7:30)
   afternoonTimes.forEach((time) => {
     const startTime = time.split('-')[0];
     const hour = parseInt(startTime.split(':')[0]);
     const bgClass = hour >= 6 ? 'bg-gradient-to-b from-purple-700 to-purple-800' : 'bg-gradient-to-b from-orange-600 to-orange-700';
-    const timeLabel = hour >= 6 ? '🌙 Eve' : '🌆 PM';
-    
-    html += `<th class="border-2 border-blue-800 px-5 py-5 font-black whitespace-nowrap ${bgClass} hover:scale-105 hover:shadow-xl transition-all duration-200 cursor-default shadow-inner min-w-[110px]" title="Time Slot: ${time}">
-      <div class="flex flex-col items-center justify-center gap-1">
-        <div class="text-2xl font-black leading-none tracking-tight drop-shadow-lg">${time}</div>
-        <div class="text-xs font-semibold opacity-90 mt-1 px-2 py-1 bg-white bg-opacity-20 rounded-full backdrop-blur-sm">
-          ${timeLabel}
-        </div>
-      </div>
+    html += `<th class="border border-blue-800 px-2 py-3 font-bold text-sm whitespace-nowrap ${bgClass}" title="Time Slot: ${time}">
+      <div class="text-sm leading-tight">${time}</div>
     </th>`;
   });
   
@@ -1213,14 +1201,14 @@ function renderTimetable(assignments) {
   
   days.forEach((day, dayIndex) => {
     html += `<tr class="${dayIndex % 2 === 0 ? 'bg-gray-50' : 'bg-white'} hover:bg-blue-50 transition">`;
-    html += `<td class="border-2 border-gray-300 px-4 py-4 font-bold text-gray-800 text-lg">${day}</td>`;
+    html += `<td class="border border-gray-300 px-3 py-3 font-bold text-gray-800 text-sm" style="width: 80px;">${day}</td>`;
     
     times.forEach(time => {
       const key = `${day}|${time}`;
       const cells = grid[key];
       
       if (cells && cells.length > 0) {
-        html += '<td class="border-2 border-gray-300 px-2 py-2 align-top">';
+        html += '<td class="border border-gray-300 px-2 py-2 align-top">';
         cells.forEach(cell => {
           const isLab = cell.type && (cell.type === 'Lab' || cell.type.toUpperCase() === 'LAB');
           const bgColor = isLab ? 'bg-green-100 border-green-400' : 'bg-blue-100 border-blue-400';
@@ -1231,22 +1219,21 @@ function renderTimetable(assignments) {
           const subjectHasBoth = cell.subjectHasBoth || (cell.hasTheory && cell.hasLab);
           let typeBadge = '';
           if (subjectHasBoth) {
-            typeBadge = `<div class="text-xs font-semibold mb-1 ${isLab ? 'text-green-700' : 'text-blue-700'}">${cell.type} ${isLab ? '🔬' : '📚'}</div>`;
+            typeBadge = `<div class="text-xs font-semibold mb-1 ${isLab ? 'text-green-700' : 'text-blue-700'}">${cell.type}</div>`;
           } else {
             typeBadge = `<div class="text-xs font-semibold mb-1 ${isLab ? 'text-green-700' : 'text-blue-700'}">${cell.type}</div>`;
           }
           
-          html += `<div class="${bgColor} ${textColor} ${borderColor} rounded-lg p-3 mb-2 border-2 shadow-md hover:shadow-lg transition">
+          html += `<div class="${bgColor} ${textColor} ${borderColor} rounded p-2 mb-2 border shadow-sm">
             ${typeBadge}
-            <div class="font-bold text-sm mb-1">${cell.code}</div>
-            <div class="text-xs mb-2 leading-tight">${cell.subject}</div>
-            <div class="text-xs font-mono text-gray-600 bg-white bg-opacity-50 rounded px-2 py-1">${cell.slot}</div>
-            <div class="text-xs text-gray-500 mt-1">${cell.time}</div>
+            <div class="font-bold text-xs mb-1 leading-tight">${cell.code}</div>
+            <div class="text-[11px] mb-1 leading-tight">${cell.subject}</div>
+            <div class="text-[10px] font-mono text-gray-600 bg-white bg-opacity-50 rounded px-1.5 py-1">${cell.slot}</div>
           </div>`;
         });
         html += '</td>';
       } else {
-        html += '<td class="border-2 border-gray-300 px-2 py-2 bg-gray-50"></td>';
+        html += '<td class="border border-gray-300 px-2 py-2 bg-gray-50"></td>';
       }
     });
     
@@ -1255,7 +1242,7 @@ function renderTimetable(assignments) {
   
   html += '</tbody></table></div>';
   
-  // Add summary and legend - determine from assignment types
+  // Add summary and legend - determine from assignment types and collect slots
   const subjectSummary = {};
   assignments.forEach(a => {
     if (!subjectSummary[a.code]) {
@@ -1263,37 +1250,64 @@ function renderTimetable(assignments) {
         code: a.code,
         title: a.subject,
         hasTheory: false,
-        hasLab: false
+        hasLab: false,
+        theorySlots: [],
+        labSlots: []
       };
     }
-    // Determine from assignment type
+    // Determine from assignment type and collect slots
     const assignmentType = a.type ? a.type.toUpperCase() : '';
-    if (assignmentType === 'THEORY') subjectSummary[a.code].hasTheory = true;
-    if (assignmentType === 'LAB' || a.type === 'Lab') subjectSummary[a.code].hasLab = true;
+    if (assignmentType === 'THEORY') {
+      subjectSummary[a.code].hasTheory = true;
+      if (!subjectSummary[a.code].theorySlots.includes(a.slot)) {
+        subjectSummary[a.code].theorySlots.push(a.slot);
+      }
+    }
+    if (assignmentType === 'LAB' || a.type === 'Lab') {
+      subjectSummary[a.code].hasLab = true;
+      if (!subjectSummary[a.code].labSlots.includes(a.slot)) {
+        subjectSummary[a.code].labSlots.push(a.slot);
+      }
+    }
   });
   
-  html += '<div class="bg-gray-100 rounded-lg p-6 mt-6">';
-  html += '<h3 class="text-lg font-bold text-gray-800 mb-4">Subject Summary</h3>';
-  html += '<div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">';
+  html += '<div class="bg-gray-100 rounded-lg p-4 mt-4">';
+  html += '<h3 class="text-sm font-bold text-gray-800 mb-3">Subject Summary</h3>';
+  html += '<div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-2">';
   Object.values(subjectSummary).forEach(subj => {
     const types = [];
     if (subj.hasTheory) types.push('Theory');
     if (subj.hasLab) types.push('Lab');
     const typeStr = types.join(' + ');
-    html += `<div class="bg-white rounded-lg p-3 border-2 ${subj.hasTheory && subj.hasLab ? 'border-purple-400' : subj.hasLab ? 'border-green-400' : 'border-blue-400'}">
-      <div class="font-bold text-sm">${subj.code}</div>
-      <div class="text-xs text-gray-600 mt-1">${subj.title}</div>
-      <div class="text-xs font-semibold mt-2 ${subj.hasTheory && subj.hasLab ? 'text-purple-600' : subj.hasLab ? 'text-green-600' : 'text-blue-600'}">${typeStr}</div>
+    
+    // Build slots display
+    let slotsDisplay = '';
+    if (subj.theorySlots.length > 0 || subj.labSlots.length > 0) {
+      slotsDisplay = '<div class="mt-2 pt-2 border-t border-gray-300">';
+      if (subj.theorySlots.length > 0) {
+        slotsDisplay += `<div class="text-[9px] mb-1"><span class="font-semibold text-blue-700">Theory:</span> <span class="font-mono text-gray-700">${subj.theorySlots.join(', ')}</span></div>`;
+      }
+      if (subj.labSlots.length > 0) {
+        slotsDisplay += `<div class="text-[9px]"><span class="font-semibold text-green-700">Lab:</span> <span class="font-mono text-gray-700">${subj.labSlots.join(', ')}</span></div>`;
+      }
+      slotsDisplay += '</div>';
+    }
+    
+    html += `<div class="bg-white rounded-lg p-2 border ${subj.hasTheory && subj.hasLab ? 'border-purple-400' : subj.hasLab ? 'border-green-400' : 'border-blue-400'}">
+      <div class="font-bold text-xs">${subj.code}</div>
+      <div class="text-[10px] text-gray-600 mt-1 line-clamp-2">${subj.title}</div>
+      <div class="text-[10px] font-semibold mt-1 ${subj.hasTheory && subj.hasLab ? 'text-purple-600' : subj.hasLab ? 'text-green-600' : 'text-blue-600'}">${typeStr}</div>
+      ${slotsDisplay}
     </div>`;
   });
   html += '</div>';
   html += '</div>';
   
-  // Add legend
-  html += '<div class="mt-6 flex justify-center gap-8 flex-wrap">';
-  html += '<div class="flex items-center gap-2"><div class="w-5 h-5 bg-blue-100 border-2 border-blue-400 rounded"></div><span class="text-sm font-semibold">Theory</span></div>';
-  html += '<div class="flex items-center gap-2"><div class="w-5 h-5 bg-green-100 border-2 border-green-400 rounded"></div><span class="text-sm font-semibold">Lab</span></div>';
-  html += '<div class="flex items-center gap-2"><div class="w-5 h-5 bg-purple-100 border-2 border-purple-400 rounded"></div><span class="text-sm font-semibold">Both Theory + Lab</span></div>';
+  // Add legend - compact
+  html += '<div class="mt-4 flex justify-center gap-4 flex-wrap text-xs">';
+  html += '<div class="flex items-center gap-1"><div class="w-4 h-4 bg-blue-100 border border-blue-400 rounded"></div><span class="font-semibold">Theory</span></div>';
+  html += '<div class="flex items-center gap-1"><div class="w-4 h-4 bg-green-100 border border-green-400 rounded"></div><span class="font-semibold">Lab</span></div>';
+  html += '<div class="flex items-center gap-1"><div class="w-4 h-4 bg-purple-100 border border-purple-400 rounded"></div><span class="font-semibold">Both</span></div>';
   html += '</div>';
   
   timetableDiv.innerHTML = html;
