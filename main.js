@@ -5,7 +5,6 @@ const coursesData = [
   { code: "ECS3001", title: "Engineering Clinics - II", type: "PJT", slots: ["NILL"] },
   { code: "MIC5002", title: "Senior Design Project", type: "PJT", slots: ["NILL"] },
   { code: "BIC4002", title: "Internship", type: "PJT", slots: ["NILL"] },
-
   // CHY - Chemistry Courses
   { code: "CHY1005", title: "Industrial Chemistry for Engineers", type: "TH", slots: ["B1+TB1"] },
   { code: "CHY1006", title: "Corrosion Science and Engineering", type: "TH", slots: ["C1+TC1"] },
