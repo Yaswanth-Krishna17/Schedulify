@@ -1,11 +1,11 @@
 // Course data parsed from PDF
 const coursesData = [
   // Complete Course data parsed from PDF - ALL SUBJECTS
-  { code: "CHY1005", title: "Industrial Chemistry for Engineers", type: "Theory", slots: ["B2+TB2", "B1+TB1"] },
-    { code: "CHY1006", title: "Corrosion Science and Engineering", type: "Theory", slots: ["A1+TA1", "C1+TC1"] },
-    { code: "CHY1007", title: "Energy Materials and Their Applications", type: "Theory", slots: ["A2+TA2", "A1+TA1"] },
-    { code: "CHY2001", title: "Chemical and Biosensors", type: "Theory", slots: ["B1+TB1", "C2+TC2"] },
-    { code: "CHY2002", title: "Organic Electronics", type: "Theory", slots: ["B2+TB2", "A2+TA2"] },
+  { code: "CHY1005", title: "Industrial Chemistry for Engineers", type: "Theory", slots: ["B1+TB1"] },
+    { code: "CHY1006", title: "Corrosion Science and Engineering", type: "Theory", slots: ["C1+TC1"] },
+    { code: "CHY1007", title: "Energy Materials and Their Applications", type: "Theory", slots: ["A1+TA1"] },
+    { code: "CHY2001", title: "Chemical and Biosensors", type: "Theory", slots: ["C2+TC2"] },
+    { code: "CHY2002", title: "Organic Electronics", type: "Theory", slots: ["A2+TA2"] },
     { code: "CSE0109", title: "Computer Applications for Social Sciences", type: "Theory", slots: ["TG2"] },
     { code: "CSE0503", title: "Concepts of Data Mining", type: "Theory", slots: ["B2+TB2"] },
     { code: "CSE1005", title: "Software Engineering", type: "Theory", slots: ["B1+TB1", "B2+TB2", "C1+TC1", "C2+TC2", "C1+TCC1", "C2+TCC2"] },
@@ -69,7 +69,7 @@ const coursesData = [
     { code: "CSE4037", title: "Reinforcement Learning", type: "Theory", slots: ["D1+TD1", "D2+TD2", "F1+TF1", "F2+TF2", "F1+TFF1"] },
     { code: "CSE4040", title: "Mining Massive Data Sets", type: "Theory", slots: ["G1+TG1", "G2+TG2"] },
     { code: "CSE4040", title: "Mining Massive Data Sets", type: "Lab", slots: ["L31+L32", "L39+L40", "L8+L9"] },
-    { code: "CSE4043", title: "Network Intrusion Detection and Prevention System", type: "Theory", slots: ["G1+TG1", "G2+TG2"] },
+    { code: "CSE4043", title: "Network Intrusion Detection and Prevention System", type: "Theory", slots: ["D1+TD1", "D2+TD2"] },
     { code: "CSE4043", title: "Network Intrusion Detection and Prevention System", type: "Lab", slots: ["L10+L11", "L20+L21", "L51+L52"] },
     { code: "ECE0103", title: "Digital Design", type: "Theory", slots: ["G1"] },
     { code: "ECE0103", title: "Digital Design", type: "Lab", slots: ["L16+L17"] },
