@@ -301,7 +301,7 @@ const slotMap = {
     { day: 'TUE', time: '2:00-2:50', type: 'Theory' }
   ],
   'G2': [
-    { day: 'TUE', time: '4:00-4:50', type: 'Theory' },
+    { day: 'TUE', time: '5:00-5:50', type: 'Theory' },
     { day: 'WED', time: '3:00-3:50', type: 'Theory' }
   ],
   
