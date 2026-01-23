@@ -1,4 +1,3 @@
-// Course data parsed from PDF
 const coursesData = [
   // Complete Course data parsed from PDF - ALL SUBJECTS
     { code: "CHY1005", title: "Industrial Chemistry for Engineers", type: "Theory", slots: ["B1+TB1"] },
@@ -319,12 +318,8 @@ const slotMap = {
   'TEE2': [{ day: 'FRI', time: '6:00-6:50', type: 'Theory' }],
   'TFF2': [{ day: 'SAT', time: '6:00-6:50', type: 'Theory' }],
   'TGG2': [{ day: 'THU', time: '6:00-6:50', type: 'Theory' }],
-  // Lab Slots - Updated based on ANNEXURE - I
-  // Lab slots have different time intervals than theory slots
-  // Morning: 8:00-8:50, 9:00-9:50, 9:50-10:40, 11:00-11:50, 11:50-12:40, 12:40-1:30
-  // Afternoon: 2:00-2:50, 2:50-3:40, 4:00-4:50, 4:50-5:40, 6:00-6:50, 6:50-7:30
   
-  // TUESDAY Lab Slots
+
   'L1': { day: 'TUE', time: '8:00-8:50', type: 'Lab' },
   'L2': { day: 'TUE', time: '9:00-9:50', type: 'Lab' },
   'L3': { day: 'TUE', time: '9:50-10:40', type: 'Lab' },
@@ -338,7 +333,7 @@ const slotMap = {
   'L35': { day: 'TUE', time: '6:00-6:50', type: 'Lab' },
   'L36': { day: 'TUE', time: '6:50-7:30', type: 'Lab' },
   
-  // WEDNESDAY Lab Slots
+
   'L7': { day: 'WED', time: '8:00-8:50', type: 'Lab' },
   'L8': { day: 'WED', time: '9:00-9:50', type: 'Lab' },
   'L9': { day: 'WED', time: '9:50-10:40', type: 'Lab' },
@@ -352,7 +347,7 @@ const slotMap = {
   'L41': { day: 'WED', time: '6:00-6:50', type: 'Lab' },
   'L42': { day: 'WED', time: '6:50-7:30', type: 'Lab' },
   
-  // THURSDAY Lab Slots
+
   'L13': { day: 'THU', time: '8:00-8:50', type: 'Lab' },
   'L14': { day: 'THU', time: '9:00-9:50', type: 'Lab' },
   'L15': { day: 'THU', time: '9:50-10:40', type: 'Lab' },
@@ -366,7 +361,7 @@ const slotMap = {
   'L47': { day: 'THU', time: '6:00-6:50', type: 'Lab' },
   'L48': { day: 'THU', time: '6:50-7:30', type: 'Lab' },
   
-  // FRIDAY Lab Slots
+
   'L19': { day: 'FRI', time: '8:00-8:50', type: 'Lab' },
   'L20': { day: 'FRI', time: '9:00-9:50', type: 'Lab' },
   'L21': { day: 'FRI', time: '9:50-10:40', type: 'Lab' },
@@ -380,7 +375,7 @@ const slotMap = {
   'L53': { day: 'FRI', time: '6:00-6:50', type: 'Lab' },
   'L54': { day: 'FRI', time: '6:50-7:30', type: 'Lab' },
   
-  // SATURDAY Lab Slots
+
   'L25': { day: 'SAT', time: '8:00-8:50', type: 'Lab' },
   'L26': { day: 'SAT', time: '9:00-9:50', type: 'Lab' },
   'L27': { day: 'SAT', time: '9:50-10:40', type: 'Lab' },
@@ -405,7 +400,6 @@ const timetableSection = document.getElementById('timetable-section');
 const timetableDiv = document.getElementById('timetable');
 const resetBtn = document.getElementById('reset-btn');
 
-// Initial form submission
 initialForm.addEventListener('submit', function(e) {
   e.preventDefault();
   const numSubjects = parseInt(document.getElementById('num-subjects').value, 10);
@@ -418,10 +412,10 @@ initialForm.addEventListener('submit', function(e) {
 });
 
 function generateSubjectSelectors(numSubjects) {
-  // Use all courses without batch filtering
+ 
   const filteredCourses = coursesData;
   
-  // Group courses by code+title to get unique courses with all their slots
+  
   const courseMap = new Map();
   filteredCourses.forEach(course => {
     const key = course.code + '|' + course.title;
@@ -438,10 +432,10 @@ function generateSubjectSelectors(numSubjects) {
     }
     const courseData = courseMap.get(key);
     
-    // Add programme to the set
+ 
     courseData.programmes.add(course.programme);
     
-    // Process slots based on type (handle both "Lab" and "LAB")
+
     const courseType = course.type ? course.type.toUpperCase() : '';
     if (courseType === 'THEORY') {
       courseData.hasTheory = true;
@@ -460,15 +454,14 @@ function generateSubjectSelectors(numSubjects) {
     }
   });
   
-  // Convert to array and add combined information, then sort alphabetically
   const uniqueCourses = Array.from(courseMap.values()).map(course => {
-    // Convert programmes Set to sorted array and join
+ 
     const programmesArray = Array.from(course.programmes).sort();
     const programmeStr = programmesArray.length > 1 
       ? programmesArray.join(', ') 
       : programmesArray[0];
     
-    // Determine if course has both theory and lab
+
     const hasBoth = course.hasTheory && course.hasLab;
     
     return {
@@ -483,7 +476,7 @@ function generateSubjectSelectors(numSubjects) {
       hasBoth: hasBoth
     };
   }).sort((a, b) => {
-    // Sort alphabetically by title (case-insensitive)
+    
     return a.title.localeCompare(b.title, undefined, { sensitivity: 'base' });
   });
   
@@ -575,7 +568,6 @@ function generateSubjectSelectors(numSubjects) {
   });
 }
 
-// Store all available courses for filtering
 let allAvailableCourses = [];
 
 // Populate course dropdown with available courses (excluding already selected ones)
@@ -587,10 +579,9 @@ function populateCourseDropdown(index, courses) {
   const dropdown = document.getElementById(`course-dropdown-${index}`);
   if (!dropdown) return;
   
-  // Use stored courses if available
+
   const coursesToUse = allAvailableCourses.length > 0 ? allAvailableCourses : courses;
   
-  // Get currently selected courses from other boxes
   const selectedCourseKeys = new Set();
   for (let j = 0; j < selectedSubjects.length; j++) {
     if (j !== index && selectedSubjects[j] && selectedSubjects[j].code && selectedSubjects[j].title) {
@@ -614,8 +605,6 @@ function populateCourseDropdown(index, courses) {
     const searchableText = `${course.code} ${course.title} ${course.programme}`.toLowerCase();
     return searchableText.includes(searchTerm);
   });
-  
-  // Build dropdown HTML
   let dropdownHTML = '';
   if (filteredCourses.length === 0) {
     dropdownHTML = '<div class="p-4 text-center text-gray-500">No courses found</div>';
@@ -652,14 +641,11 @@ function populateCourseDropdown(index, courses) {
   dropdown.innerHTML = dropdownHTML;
 }
 
-// Handle course search input
 window.handleCourseSearch = function(index, event) {
   const searchInput = event.target;
   const dropdown = document.getElementById(`course-dropdown-${index}`);
   
   if (!dropdown) return;
-  
-  // Get all courses (will filter out selected ones in populateCourseDropdown)
   const filteredCourses = allAvailableCourses || [];
   populateCourseDropdown(index, filteredCourses);
   
@@ -667,7 +653,6 @@ window.handleCourseSearch = function(index, event) {
   dropdown.classList.remove('hidden');
 };
 
-// Show course dropdown
 window.showCourseDropdown = function(index) {
   const dropdown = document.getElementById(`course-dropdown-${index}`);
   if (dropdown) {
@@ -676,7 +661,6 @@ window.showCourseDropdown = function(index) {
   }
 };
 
-// Handle keyboard navigation
 window.handleCourseKeydown = function(index, event) {
   const dropdown = document.getElementById(`course-dropdown-${index}`);
   if (!dropdown || dropdown.classList.contains('hidden')) return;
@@ -716,7 +700,6 @@ window.handleCourseKeydown = function(index, event) {
   }
 };
 
-// Select course from dropdown
 window.selectCourseFromDropdown = function(index, value, displayText) {
   const searchInput = document.getElementById(`course-search-${index}`);
   const hiddenInput = document.getElementById(`course-select-${index}`);
@@ -724,8 +707,7 @@ window.selectCourseFromDropdown = function(index, value, displayText) {
   const selectedText = document.getElementById(`selected-course-text-${index}`);
   const dropdown = document.getElementById(`course-dropdown-${index}`);
   const slotOptionsDiv = document.getElementById(`slot-options-${index}`);
-  
-  // Process course selection
+
   const [code, title] = value.split('|');
   
   // Check if this course is already selected in another box
@@ -746,12 +728,10 @@ window.selectCourseFromDropdown = function(index, value, displayText) {
   if (selectedDiv) selectedDiv.classList.remove('hidden');
   if (dropdown) dropdown.classList.add('hidden');
   
-    // Get all slots for this course (handle both "Lab" and "LAB" types)
     const courseSlots = coursesData.filter(c => c.code === code && c.title === title);
     const theorySlots = [...new Set(courseSlots.filter(c => c.type && c.type.toUpperCase() === 'THEORY').flatMap(c => c.slots))];
     const labSlots = [...new Set(courseSlots.filter(c => c.type && (c.type.toUpperCase() === 'LAB' || c.type === 'Lab')).flatMap(c => c.slots))];
-    
-    // Store in global state
+
     selectedSubjects[index] = {
       code,
       title,
@@ -761,14 +741,12 @@ window.selectCourseFromDropdown = function(index, value, displayText) {
       selectedTheorySlots: theorySlots,
       selectedLabSlots: labSlots
     };
-  
-  // Show slot options
+
   if (slotOptionsDiv) slotOptionsDiv.classList.remove('hidden');
   
   // Populate manual slot selection areas
   populateManualSlots(index, theorySlots, labSlots);
   
-  // Update all other dropdowns to remove this selected course
   for (let i = 0; i < selectedSubjects.length; i++) {
     if (i !== index) {
       populateCourseDropdown(i, allAvailableCourses);
@@ -776,7 +754,7 @@ window.selectCourseFromDropdown = function(index, value, displayText) {
   }
 };
 
-// Clear course selection
+
 window.clearCourseSelection = function(index) {
   const searchInput = document.getElementById(`course-search-${index}`);
   const hiddenInput = document.getElementById(`course-select-${index}`);
@@ -796,7 +774,6 @@ window.clearCourseSelection = function(index) {
   }
 };
 
-// Handle course selection (legacy function for compatibility)
 window.handleCourseSelection = function(index) {
   const hiddenInput = document.getElementById(`course-select-${index}`);
   const selectedValue = hiddenInput ? hiddenInput.value : '';
@@ -817,13 +794,12 @@ window.handleCourseSelection = function(index) {
         }
       }
     }
-    
-    // Get all slots for this course (handle both "Lab" and "LAB" types)
+
     const courseSlots = coursesData.filter(c => c.code === code && c.title === title);
     const theorySlots = [...new Set(courseSlots.filter(c => c.type && c.type.toUpperCase() === 'THEORY').flatMap(c => c.slots))];
     const labSlots = [...new Set(courseSlots.filter(c => c.type && (c.type.toUpperCase() === 'LAB' || c.type === 'Lab')).flatMap(c => c.slots))];
     
-    // Store in global state
+
     selectedSubjects[index] = {
       code,
       title,
@@ -850,7 +826,6 @@ window.handleCourseSelection = function(index) {
     if (slotOptionsDiv) slotOptionsDiv.classList.add('hidden');
     selectedSubjects[index] = null;
     
-    // Update all other dropdowns when a course is cleared
     for (let i = 0; i < selectedSubjects.length; i++) {
       if (i !== index) {
         populateCourseDropdown(i, allAvailableCourses);
@@ -859,17 +834,16 @@ window.handleCourseSelection = function(index) {
   }
 };
 
-// Handle slot preference change
 window.handleSlotPreference = function(index, preference) {
   const manualSlotsDiv = document.getElementById(`manual-slots-${index}`);
   
   if (preference === 'manual') {
     manualSlotsDiv.classList.remove('hidden');
     selectedSubjects[index].preference = 'manual';
-    // Initialize with empty arrays - user must select slots manually
+    
     selectedSubjects[index].selectedTheorySlots = [];
     selectedSubjects[index].selectedLabSlots = [];
-    // Uncheck all checkboxes
+   
     const theoryCheckboxes = document.querySelectorAll(`.theory-slot-${index}`);
     const labCheckboxes = document.querySelectorAll(`.lab-slot-${index}`);
     theoryCheckboxes.forEach(cb => cb.checked = false);
@@ -883,7 +857,6 @@ window.handleSlotPreference = function(index, preference) {
   }
 };
 
-// Populate manual slot selection checkboxes
 function populateManualSlots(index, theorySlots, labSlots) {
   const theorySlotsDiv = document.getElementById(`theory-slots-${index}`);
   const labSlotsDiv = document.getElementById(`lab-slots-${index}`);
@@ -917,7 +890,7 @@ function populateManualSlots(index, theorySlots, labSlots) {
   labSlotsDiv.innerHTML = labHtml;
 }
 
-// Update selected slots based on checkbox selection
+
 window.updateSelectedSlots = function(index) {
   const theoryCheckboxes = document.querySelectorAll(`.theory-slot-${index}:checked`);
   const labCheckboxes = document.querySelectorAll(`.lab-slot-${index}:checked`);
@@ -970,7 +943,6 @@ function handleTimetableGeneration(e) {
   }, 1000);
 }
 
-// Generate clash-free timetable using backtracking
 function generateTimetable(subjects) {
   const assignments = [];
   const usedTimes = new Set();
@@ -1083,7 +1055,6 @@ function generateTimetable(subjects) {
             return true;
           }
           
-          // Backtrack - remove assignments and times
           if (theorySlot) assignments.pop();
           if (labSlot) assignments.pop();
           removeSlotTimes(allTimes);
@@ -1100,10 +1071,9 @@ function generateTimetable(subjects) {
   return null;
 }
 
-// Render the timetable
 function renderTimetable(assignments) {
   const days = ['TUE', 'WED', 'THU', 'FRI', 'SAT'];
-  // Separate times into Morning (8 AM - 1 PM) and Afternoon (2 PM - 7:30 PM)
+  
   const morningTimes = [
     '8:00-8:50', '9:00-9:50', '9:50-10:40', '10:00-10:50', '11:00-11:50', '11:50-12:40', '12:00-12:50', '12:40-1:30'
   ];
@@ -1112,7 +1082,7 @@ function renderTimetable(assignments) {
   ];
   const times = [...morningTimes, ...afternoonTimes];
   
-  // Build grid with proper type information
+
   const grid = {};
   assignments.forEach(assignment => {
     const slots = assignment.slot.split('+');
@@ -1141,7 +1111,7 @@ function renderTimetable(assignments) {
     });
   });
   
-  // Render compact table that fits on single page
+ 
   let html = '<div class="w-full mb-6 shadow-2xl rounded-xl bg-white">';
   html += '<table class="w-full border border-gray-300 text-center bg-white" style="table-layout: fixed; width: 100%; font-size: 0.75rem;">';
   html += '<thead class="sticky top-0 z-20">';
@@ -1152,7 +1122,7 @@ function renderTimetable(assignments) {
   html += '<div class="text-xs">📅 DAY</div>';
   html += '</th>';
   
-  // Morning section header
+
   html += `<th colspan="${morningTimes.length}" class="border border-gray-600 px-2 py-2 font-bold text-sm bg-gradient-to-r from-blue-600 via-blue-700 to-blue-600">
     <div class="flex items-center justify-center gap-2">
       <span>🌅</span>
@@ -1160,7 +1130,6 @@ function renderTimetable(assignments) {
     </div>
   </th>`;
   
-  // Afternoon section header (including 6:00-7:30 slots)
   html += `<th colspan="${afternoonTimes.length}" class="border border-gray-600 px-2 py-2 font-bold text-sm bg-gradient-to-r from-orange-600 via-orange-700 to-orange-600">
     <div class="flex items-center justify-center gap-2">
       <span>🌆</span>
@@ -1170,7 +1139,6 @@ function renderTimetable(assignments) {
   
   html += '</tr>';
   
-  // Header row with timings - compact
   html += '<tr class="bg-gradient-to-r from-blue-700 via-purple-700 to-blue-700 text-white">';
   html += '<th class="border border-blue-800 px-3 py-3 font-bold text-sm bg-gradient-to-br from-blue-800 to-purple-800" style="width: 80px;">';
   html += '<div class="text-sm">DAY</div>';
@@ -1184,7 +1152,7 @@ function renderTimetable(assignments) {
     </th>`;
   });
   
-  // Afternoon time slots - compact (including 6:00-6:50 and 6:50-7:30)
+ 
   afternoonTimes.forEach((time) => {
     const startTime = time.split('-')[0];
     const hour = parseInt(startTime.split(':')[0]);
@@ -1241,7 +1209,7 @@ function renderTimetable(assignments) {
   
   html += '</tbody></table></div>';
   
-  // Add summary and legend - determine from assignment types and collect slots
+
   const subjectSummary = {};
   assignments.forEach(a => {
     if (!subjectSummary[a.code]) {
@@ -1279,7 +1247,7 @@ function renderTimetable(assignments) {
     if (subj.hasLab) types.push('Lab');
     const typeStr = types.join(' + ');
     
-    // Build slots display
+    
     let slotsDisplay = '';
     if (subj.theorySlots.length > 0 || subj.labSlots.length > 0) {
       slotsDisplay = '<div class="mt-2 pt-2 border-t border-gray-300">';
@@ -1302,7 +1270,7 @@ function renderTimetable(assignments) {
   html += '</div>';
   html += '</div>';
   
-  // Add legend - compact
+
   html += '<div class="mt-4 flex justify-center gap-4 flex-wrap text-xs">';
   html += '<div class="flex items-center gap-1"><div class="w-4 h-4 bg-blue-100 border border-blue-400 rounded"></div><span class="font-semibold">Theory</span></div>';
   html += '<div class="flex items-center gap-1"><div class="w-4 h-4 bg-green-100 border border-green-400 rounded"></div><span class="font-semibold">Lab</span></div>';
@@ -1312,7 +1280,7 @@ function renderTimetable(assignments) {
   timetableDiv.innerHTML = html;
 }
 
-// Reset button
+
 resetBtn.addEventListener('click', function() {
   selectedBatch = '';
   selectedSubjects = [];
